@@ -56,5 +56,5 @@ The bottom right shows the smoking gun: R-squared of negative 0.62, meaning the 
 
 ## Closing (10 seconds) - Slide 10
 
-"[Screen share: Slide 10] Everything's open source on GitHub. The key insight: understanding life requires infrastructure that can handle both biological complexity and computational scale. Thanks for watching, and I'm excited about the possibility of joining this fellowship to take this work further!"
+"[Screen share: Slide 10] Everything's open source on GitHub. The key insight: understanding life requires infrastructure that can handle both biological complexity and computational scale. Thanks for watching, and I'm excited about the possibility of pursuing this project!
 
