@@ -214,6 +214,174 @@ cd beehive_digital_twin
 pip install torch torchvision matplotlib pandas numpy scikit-learn requests
 ```
 
+## 📋 Usage: Complete Workflow
+
+### Quick Start: Terraform + Setup + Analysis (Copy-Paste Ready)
+
+**Step 1: Clone and Configure**
+```bash
+# Clone the repository
+git clone https://github.com/your-username/beehive_digital_twin.git
+cd beehive_digital_twin
+
+# Configure Terraform (edit with your actual credentials)
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+
+# Edit terraform.tfvars with your information:
+# vastai_api_key = "your_actual_api_key"
+# ssh_public_key_path = "/path/to/your/id_rsa.pub"  
+# ssh_private_key_path = "/path/to/your/id_rsa"
+```
+
+**Step 2: Deploy GPU Instance**
+```bash
+# Initialize and deploy infrastructure
+terraform init
+terraform plan
+terraform apply -auto-approve
+
+# Get your instance IP address
+INSTANCE_IP=$(terraform output -raw instance_ip)
+echo "Instance IP: $INSTANCE_IP"
+
+# Wait for instance to be ready (usually 1-2 minutes)
+sleep 120
+```
+
+**Step 3: Setup Environment on Instance**
+```bash
+# Connect and setup the environment
+ssh -o "StrictHostKeyChecking=no" root@$INSTANCE_IP << 'EOF'
+  # Clone project on the instance
+  git clone https://github.com/your-username/beehive_digital_twin.git
+  cd beehive_digital_twin
+  
+  # Run automated setup
+  bash setup_gpu_machine.sh
+  
+  # Activate environment
+  source ~/activate_beehive.sh
+EOF
+```
+
+**Step 4: Run the Analysis**
+```bash
+# Execute the complete digital twin analysis pipeline
+ssh root@$INSTANCE_IP << 'EOF'
+  source ~/activate_beehive.sh
+  cd beehive_digital_twin
+  
+  echo "🔧 Step 1: GPU Infrastructure Analysis"
+  python3 src/validation/gpu_scaling_testing.py | tee results/gpu_analysis.log
+  
+  echo "🐝 Step 2: Biological Complexity Discovery" 
+  python3 src/validation/v0_digital_twin.py | tee results/biological_analysis.log
+  
+  echo "📊 Step 3: Generate Visualizations"
+  python3 src/validation/validation_viz.py | tee results/visualization.log
+  
+  echo "✅ Analysis Complete! Check results/ directory for outputs"
+  ls -la results/
+EOF
+```
+
+**Step 5: Retrieve Results**
+```bash
+# Download results to your local machine
+mkdir -p ./local_results
+scp root@$INSTANCE_IP:~/beehive_digital_twin/results/* ./local_results/
+scp root@$INSTANCE_IP:~/beehive_digital_twin/*.png ./local_results/ 2>/dev/null || true
+
+echo "📁 Results downloaded to ./local_results/"
+ls -la ./local_results/
+```
+
+**Step 6: Cleanup**
+```bash
+# Destroy the instance to avoid charges
+cd terraform
+terraform destroy -auto-approve
+
+echo "🧹 Cleanup complete! Instance destroyed."
+```
+
+### Alternative: Manual GPU Instance Usage
+
+If you have an existing GPU instance:
+
+**Setup**
+```bash
+# On your GPU instance
+git clone https://github.com/your-username/beehive_digital_twin.git
+cd beehive_digital_twin
+bash setup_gpu_machine.sh
+source ~/activate_beehive.sh
+```
+
+**Run Analysis**
+```bash
+# GPU infrastructure analysis
+python3 src/validation/gpu_scaling_testing.py
+
+# Biological modeling and complexity discovery
+python3 src/validation/v0_digital_twin.py  
+
+# Generate visualizations (uses output from above)
+python3 src/validation/validation_viz.py gpu_scaling_study_*.json biological_intelligence_demo.json
+```
+
+**Monitor GPU Usage**
+```bash
+# Real-time GPU monitoring
+nvidia-smi
+watch -n 1 nvidia-smi
+nvtop  # Interactive monitoring (if installed)
+
+# Check results
+ls -la *.json *.png results/
+```
+
+### Development Workflow
+
+**Test Individual Components**
+```bash
+# Test GPU setup
+python3 test_gpu_setup.py
+
+# Test only biological modeling
+python3 src/validation/v0_digital_twin.py
+
+# Generate visualizations with sample data
+python3 src/validation/validation_viz.py
+```
+
+**Modify and Re-run**
+```bash
+# Edit parameters in the scripts
+nano src/validation/gpu_scaling_testing.py
+# or
+nano src/validation/v0_digital_twin.py
+
+# Re-run with modifications
+python3 src/validation/gpu_scaling_testing.py
+python3 src/validation/validation_viz.py results/gpu_scaling_study_*.json biological_intelligence_demo.json
+```
+
+**Expected Output Files**
+```bash
+beehive_digital_twin/
+├── gpu_scaling_analysis.png           # GPU scaling visualization
+├── biological_complexity_analysis.png # Biological modeling results  
+├── system_architecture.png           # Complete system diagram
+├── biological_intelligence_demo.json # Biological analysis results
+├── gpu_scaling_study_*.json          # GPU analysis results
+└── results/                          # Log files and intermediate data
+    ├── gpu_analysis.log
+    ├── biological_analysis.log
+    └── visualization.log
+```
+
 ### Running the Analysis
 
 **GPU Infrastructure Analysis**:
