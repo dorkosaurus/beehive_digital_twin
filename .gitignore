@@ -1,0 +1,4 @@
+quick_start.sh
+requirements.txt
+test_gpu_setup.py
+results/validation/data/
