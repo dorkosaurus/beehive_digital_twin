@@ -1,4 +1,4 @@
-# Loom Video Script: Digital Twin Beehive Fellowship Submission
+# Digital Twin Beehive 
 
 **Total Duration**: ~3 minutes  
 **Fellowship Project**: Building a Digital Twin of My Beehive  
@@ -58,50 +58,3 @@ The bottom right shows the smoking gun: R-squared of negative 0.62, meaning the 
 
 "[Screen share: Slide 10] Everything's open source on GitHub. The key insight: understanding life requires infrastructure that can handle both biological complexity and computational scale. Thanks for watching, and I'm excited about the possibility of joining this fellowship to take this work further!"
 
----
-
-## Key Technical Points Covered
-
-### Infrastructure Analysis
-- **Single GPU baseline**: 19,000 images/sec on RTX 4090
-- **Scaling constraints**: Communication overhead limits efficiency to 77.5% at 8 GPUs
-- **Cost optimization**: 2-4 GPU sweet spot for biological AI systems
-
-### Biological Complexity Discovery
-- **Linear model failure**: R² = -0.62 (worse than random)
-- **Multi-factor interactions**: Temperature, pollution, humidity, and time create complex patterns
-- **Neural network requirement**: Biological relationships defeat simple statistics
-
-### System Integration Vision
-- **Multi-modal learning**: Environmental sensors + computer vision
-- **Real-time processing**: Continuous model retraining
-- **Autonomous learning**: Self-improving biological intelligence
-
-## Fellowship Themes Emphasized
-
-- **Systematic problem-solving approach**: Three clear questions structure
-- **Technical depth with practical application**: Real GPU analysis and biological modeling
-- **Broader impact**: Applications across life sciences domains
-- **Infrastructure thinking**: Understanding both computational and biological constraints
-- **Open source commitment**: Transparent, collaborative approach
-
-## Timing Breakdown
-
-| Section | Duration | Cumulative |
-|---------|----------|------------|
-| Opening & Hook | 20s | 20s |
-| System Overview | 15s | 35s |
-| Questions Setup | 10s | 45s |
-| GPU Question | 55s | 100s |
-| Biology Question | 55s | 155s |
-| Future Vision | 35s | 190s |
-| **Total** | **~3 minutes** | **190s** |
-
-## Visual Elements Referenced
-
-1. **Personal beehive photos** - Establishes authenticity and passion
-2. **GPU scaling analysis charts** - Technical credibility and infrastructure insights
-3. **Biological complexity visualization** - Complexity discovery and AI justification
-4. **System architecture flow** - Integration vision and next steps
-
-**This script balances technical depth with accessibility while telling a compelling personal story that demonstrates both engineering rigor and biological curiosity - perfect for fellowship evaluation.**
