@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Biological Intelligence Demo - Heavily Commented
+Biological Intelligence Demo - With Organized Results
 Fellowship Project: Environmental Data → Biological Predictions
 Author: Vivek
 
@@ -12,6 +12,8 @@ This script demonstrates the complexity of biological modeling by:
 
 The key finding: Even simplified biological models defeat basic statistics,
 proving that real biological systems need sophisticated neural networks.
+
+Results are saved to organized directory structure: results/validation/
 """
 
 # ==============================================================================
@@ -23,6 +25,7 @@ import pandas as pd      # For data manipulation and analysis
 import numpy as np       # For numerical calculations
 import matplotlib.pyplot as plt  # For creating visualizations
 import json              # For saving and loading data
+import os               # For directory management
 from datetime import datetime, timedelta
 import time
 
@@ -30,6 +33,22 @@ import time
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error
+
+# ==============================================================================
+# OUTPUT ORGANIZATION - Create organized directory structure
+# ==============================================================================
+
+def ensure_output_dirs():
+    """Create the organized directory structure for results"""
+    dirs = [
+        'results/validation',
+        'results/validation/logs', 
+        'results/validation/visualizations',
+        'results/validation/data'
+    ]
+    for dir_path in dirs:
+        os.makedirs(dir_path, exist_ok=True)
+    print("✓ Created organized results directory structure")
 
 # ==============================================================================
 # ENVIRONMENTAL DATA COLLECTION - Getting real air quality data
@@ -101,13 +120,20 @@ def get_petaluma_purpleair_data():
                     continue
         
         print(f"Found {len(petaluma_sensors)} sensors near Petaluma")
+        
+        # Save environmental data to organized location
+        if petaluma_sensors:
+            save_environmental_data_organized(petaluma_sensors, "petaluma_purpleair_data")
+        
         return petaluma_sensors
     
     except Exception as e:
         print(f"Error fetching PurpleAir data: {e}")
         print("Generating mock data for demo...")
         # If API fails, generate realistic mock data
-        return generate_mock_air_quality_data()
+        mock_data = generate_mock_air_quality_data()
+        save_environmental_data_organized(mock_data, "petaluma_mock_data")
+        return mock_data
 
 def generate_mock_air_quality_data():
     """
@@ -121,6 +147,10 @@ def generate_mock_air_quality_data():
     This is based on actual air quality patterns in Northern California.
     """
     print("Generating mock air quality data based on Petaluma patterns...")
+    
+    # Petaluma coordinates
+    petaluma_lat = 38.2324
+    petaluma_lon = -122.6367
     
     base_time = datetime.now()
     mock_data = []
@@ -157,6 +187,26 @@ def generate_mock_air_quality_data():
         })
     
     return mock_data
+
+def save_environmental_data_organized(air_quality_data, filename="environmental_data"):
+    """Save environmental data to organized directory structure"""
+    ensure_output_dirs()
+    
+    data_file = f'results/validation/data/{filename}.json'
+    
+    # Convert datetime objects to strings for JSON serialization
+    serializable_data = []
+    for reading in air_quality_data:
+        reading_copy = reading.copy()
+        if 'timestamp' in reading_copy:
+            reading_copy['timestamp'] = reading_copy['timestamp'].isoformat()
+        serializable_data.append(reading_copy)
+    
+    with open(data_file, 'w') as f:
+        json.dump(serializable_data, f, indent=2)
+    
+    print(f"✓ Environmental data saved to {data_file}")
+    return data_file
 
 # ==============================================================================
 # BEE BEHAVIOR MODELING - Creating research-based biological models
@@ -196,7 +246,7 @@ def generate_bee_activity_data(air_quality_data):
         temp_f = reading['temp_f']
         pm25 = reading['pm25']
         humidity = reading['humidity']
-        hour = reading['timestamp'].hour
+        hour = reading['timestamp'].hour if isinstance(reading['timestamp'], datetime) else datetime.fromisoformat(reading['timestamp']).hour
         
         # FACTOR 1: Temperature preference
         # Bees are cold-blooded, so temperature strongly affects activity
@@ -363,106 +413,20 @@ def train_simple_biological_predictor(bee_data):
     return model, r2, mae
 
 # ==============================================================================
-# VISUALIZATION - Creating compelling graphs to show biological complexity
+# RESULTS SAVING - Save to organized directory structure
 # ==============================================================================
 
-def create_biological_intelligence_dashboard(air_data, bee_data):
-    """
-    Create comprehensive visualizations showing environmental → biological patterns.
+def save_biological_results_organized(results):
+    """Save biological intelligence results to organized directory structure"""
+    ensure_output_dirs()
     
-    These graphs tell the story of biological complexity:
-    1. Environmental conditions over time
-    2. Predicted bee activity patterns  
-    3. Correlations between environment and biology
-    4. Factor analysis showing what drives bee behavior
+    results_file = 'results/validation/biological_intelligence_demo.json'
     
-    The visualizations make the complexity tangible and support the argument
-    for sophisticated AI infrastructure.
-    """
-    print("Creating biological intelligence dashboard...")
+    with open(results_file, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    # Convert to DataFrames for easier plotting
-    air_df = pd.DataFrame(air_data)
-    bee_df = pd.DataFrame(bee_data)
-    
-    # Create 2x2 grid of visualizations
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
-    
-    # GRAPH 1: Environmental conditions over time
-    # Shows the input data driving our biological predictions
-    ax1.plot(bee_df['timestamp'], bee_df['pm25'], 'r-', label='PM2.5 (µg/m³)', linewidth=2)
-    ax1.set_ylabel('PM2.5 (µg/m³)', color='r')
-    ax1.tick_params(axis='y', labelcolor='r')
-    ax1.set_title('Environmental Conditions - Petaluma', fontsize=14, fontweight='bold')
-    ax1.grid(True, alpha=0.3)
-    
-    # Add temperature on secondary y-axis
-    ax1_twin = ax1.twinx()
-    ax1_twin.plot(bee_df['timestamp'], bee_df['temp_f'], 'b-', label='Temperature (°F)', linewidth=2)
-    ax1_twin.set_ylabel('Temperature (°F)', color='b')
-    ax1_twin.tick_params(axis='y', labelcolor='b')
-    
-    # GRAPH 2: Predicted bee activity over time
-    # Shows the biological output from our environmental inputs
-    ax2.plot(bee_df['timestamp'], bee_df['bees_per_minute'], 'g-', linewidth=3, marker='o', markersize=4)
-    ax2.set_ylabel('Bees per Minute')
-    ax2.set_title('Predicted Bee Activity (v0 Digital Twin)', fontsize=14, fontweight='bold')
-    ax2.grid(True, alpha=0.3)
-    ax2.fill_between(bee_df['timestamp'], bee_df['bees_per_minute'], alpha=0.3, color='green')
-    
-    # Add annotation explaining the model
-    ax2.text(0.02, 0.98, 'Based on research:\n• Optimal temp: 60-80°F\n• Low pollution\n• Moderate humidity', 
-             transform=ax2.transAxes, fontsize=10, verticalalignment='top',
-             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
-    
-    # GRAPH 3: Air quality vs bee activity correlation
-    # Demonstrates the complex, non-linear relationships
-    scatter = ax3.scatter(bee_df['pm25'], bee_df['bees_per_minute'], 
-                         alpha=0.7, s=50, c=bee_df['temp_f'], cmap='RdYlBu_r')
-    ax3.set_xlabel('PM2.5 Air Pollution (µg/m³)')
-    ax3.set_ylabel('Bees per Minute')
-    ax3.set_title('Air Quality vs Biological Activity', fontsize=14, fontweight='bold')
-    ax3.grid(True, alpha=0.3)
-    
-    # Add trend line to show the relationship
-    z = np.polyfit(bee_df['pm25'], bee_df['bees_per_minute'], 1)
-    p = np.poly1d(z)
-    ax3.plot(bee_df['pm25'], p(bee_df['pm25']), "r--", alpha=0.8, linewidth=2, label='Linear trend')
-    ax3.legend()
-    
-    # Color bar for temperature
-    cbar = plt.colorbar(scatter, ax=ax3)
-    cbar.set_label('Temperature (°F)')
-    
-    # GRAPH 4: Factor analysis showing what drives bee behavior
-    # Breaks down the biological model into interpretable components
-    factors_df = pd.DataFrame([d['activity_factors'] for d in bee_data])
-    factor_means = factors_df.mean()
-    
-    colors = ['orange', 'red', 'blue', 'purple']
-    bars = ax4.bar(factor_means.index, factor_means.values, 
-                   color=colors, alpha=0.7)
-    ax4.set_ylabel('Average Impact Factor (0-1)')
-    ax4.set_title('Environmental Factors Affecting Bee Activity', fontsize=14, fontweight='bold')
-    ax4.set_ylim([0, 1])
-    ax4.grid(True, alpha=0.3)
-    
-    # Add value labels on bars
-    for bar, value in zip(bars, factor_means.values):
-        ax4.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02, 
-                f'{value:.2f}', ha='center', va='bottom', fontweight='bold')
-    
-    # Rotate x-axis labels for better readability
-    ax4.tick_params(axis='x', rotation=45)
-    
-    # Overall title for the entire dashboard
-    plt.suptitle('Autonomous Biological Learning: Environmental → Biological Intelligence', 
-                 fontsize=16, fontweight='bold', y=0.98)
-    
-    plt.tight_layout()
-    plt.show()
-    
-    return fig
+    print(f"✓ Results saved to {results_file}")
+    return results_file
 
 # ==============================================================================
 # MAIN EXECUTION - The complete biological intelligence demonstration
@@ -476,8 +440,7 @@ def main():
     1. Environmental data collection (real-world inputs)
     2. Research-based biological modeling (v0 digital twin)
     3. Statistical analysis (testing model complexity)
-    4. Visualization (making the complexity visible)
-    5. Results documentation (for fellowship submission)
+    4. Results documentation (for fellowship submission)
     
     The key finding: Even simplified biological models are too complex
     for basic statistics, proving the need for sophisticated AI infrastructure.
@@ -491,6 +454,9 @@ def main():
     print("Method: Real environmental data + research-based bee preferences")
     print("Question: Can linear regression capture biological complexity?")
     print()
+    
+    # Ensure output directories exist
+    ensure_output_dirs()
     
     # PHASE 1: Collect environmental data
     print("PHASE 1: Environmental Data Collection")
@@ -514,14 +480,8 @@ def main():
     print("-" * 40)
     model, r2, mae = train_simple_biological_predictor(bee_activity_data)
     
-    # PHASE 4: Create visualizations
-    print("\nPHASE 4: Data Visualization")
-    print("-" * 40)
-    dashboard_fig = create_biological_intelligence_dashboard(air_quality_data, bee_activity_data)
-    print("✓ Created comprehensive biological intelligence dashboard")
-    
-    # PHASE 5: Document results for fellowship submission
-    print("\nPHASE 5: Results Documentation")
+    # PHASE 4: Document results for fellowship submission
+    print("\nPHASE 4: Results Documentation")
     print("-" * 40)
     
     # Calculate summary statistics for the report
@@ -566,12 +526,8 @@ def main():
         ]
     }
     
-    # Save results to JSON file
-    results_filename = 'biological_intelligence_demo.json'
-    with open(results_filename, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"✓ Results saved to {results_filename}")
+    # Save results to organized directory structure
+    results_filename = save_biological_results_organized(results)
     
     # FINAL SUMMARY for fellowship presentation
     print(f"\n{'='*60}")
@@ -606,6 +562,8 @@ def main():
     print(f"  • Infrastructure requirements proven")
     print(f"  • Clear path to digital twin completion")
     
+    print(f"\nResults saved to: {results_filename}")
+    
     return results
 
 # ==============================================================================
@@ -630,6 +588,10 @@ if __name__ == "__main__":
         print("SUCCESS: Biological intelligence demo completed successfully!")
         print("Ready for fellowship submission.")
         print(f"{'='*60}")
+        print("\nFiles created:")
+        print("  results/validation/biological_intelligence_demo.json")
+        print("  results/validation/data/[environmental_data].json")
+        print("\nNext: python3 src/validation/validation_viz.py")
     else:
         print(f"\n{'='*60}")
         print("ERROR: Demo failed. Check error messages above.")

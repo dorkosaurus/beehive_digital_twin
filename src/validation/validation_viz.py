@@ -45,7 +45,7 @@ def create_gpu_scaling_visualization(gpu_json_file=None):
         print("! No GPU JSON file provided, using representative data")
         print(f"  Using baseline: {single_gpu_throughput:.0f} samples/sec")
     
-    # Scaling simulation results (from your script)
+    # Scaling simulation results 
     gpu_counts = [1, 2, 4, 8]
     realistic_throughputs = [
         single_gpu_throughput,           # 1 GPU: 19,000
@@ -145,18 +145,19 @@ def create_gpu_scaling_visualization(gpu_json_file=None):
                  fontsize=16, fontweight='bold', y=0.98)
     plt.tight_layout()
     
-    # Save the figure
-    plt.savefig('gpu_scaling_analysis.png', dpi=300, bbox_inches='tight')
+    # Save the figure to organized results directory
+    output_path = 'results/validation/visualizations/gpu_scaling_analysis.png'
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.show()
     
-    print("✓ GPU scaling visualization saved as 'gpu_scaling_analysis.png'")
+    print(f"✓ GPU scaling visualization saved as '{output_path}'")
     return fig
 
 def create_biological_complexity_visualization(json_file=None):
     """
     Create biological intelligence demo visualization
     """
-    # Load your actual results if file is provided
+    # Load actual results if file is provided
     results = None
     if json_file:
         try:
@@ -170,7 +171,7 @@ def create_biological_complexity_visualization(json_file=None):
     else:
         print("! No JSON file provided, using representative data")
     
-    # Create sample data that matches your actual results
+    # Create sample data that matches actual results
     hours = np.arange(24)
     timestamps = [f"{h:02d}:00" for h in hours]
     
@@ -266,11 +267,12 @@ def create_biological_complexity_visualization(json_file=None):
                  fontsize=16, fontweight='bold', y=0.98)
     plt.tight_layout()
     
-    # Save the figure
-    plt.savefig('biological_complexity_analysis.png', dpi=300, bbox_inches='tight')
+    # Save the figure to organized results directory
+    output_path = 'results/validation/visualizations/biological_complexity_analysis.png'
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.show()
     
-    print("✓ Biological complexity visualization saved as 'biological_complexity_analysis.png'")
+    print(f"✓ Biological complexity visualization saved as '{output_path}'")
     return fig
 
 def create_system_architecture_diagram():
@@ -325,10 +327,11 @@ def create_system_architecture_diagram():
     ax.text(5, 0.9, '4. This applies to any biological intelligence system at scale', ha='center', fontsize=11)
     
     plt.tight_layout()
-    plt.savefig('system_architecture.png', dpi=300, bbox_inches='tight')
+    output_path = 'results/validation/visualizations/system_architecture.png'
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.show()
     
-    print("✓ System architecture diagram saved as 'system_architecture.png'")
+    print(f"✓ System architecture diagram saved as '{output_path}'")
     return fig
 
 def main():
@@ -374,11 +377,10 @@ def main():
     print("\n" + "=" * 50)
     print("VISUALIZATION GENERATION COMPLETE!")
     print("=" * 50)
-    print("\nFiles created for your Loom demo:")
-    print("✓ gpu_scaling_analysis.png - GPU infrastructure analysis")
-    print("✓ biological_complexity_analysis.png - Biological modeling results")
-    print("✓ system_architecture.png - Complete digital twin architecture")
-    print("\nThese images are ready to screen share during your fellowship video!")
+    print("\nFiles created for Loom demo:")
+    print("✓ results/validation/visualizations/gpu_scaling_analysis.png - GPU infrastructure analysis")
+    print("✓ results/validation/visualizations/biological_complexity_analysis.png - Biological modeling results")
+    print("✓ results/validation/visualizations/system_architecture.png - Complete digital twin architecture")
     
     return gpu_fig, bio_fig, arch_fig
 

@@ -116,14 +116,14 @@ else:
 "
 
 print_status "Creating project directory structure"
-mkdir -p ~/beehive_dt/{src/validation,results,logs}
+mkdir -p ~/beehive_digital_twin/{src/validation,results/validation/{logs,visualizations,data}}
 
 print_status "Setting up environment activation script"
 cat > ~/activate_beehive.sh << 'EOF'
 #!/bin/bash
 # Activate beehive environment and set up paths
 source ~/beehive_env/bin/activate
-cd ~/beehive_dt
+cd ~/beehive_digital_twin
 export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
 echo "🐝 Beehive environment activated!"
 echo "📁 Working directory: $(pwd)"
@@ -153,7 +153,7 @@ alias l='ls -CF'
 EOF
 
 print_status "Creating GPU test script"
-cat > ~/beehive_dt/test_gpu_setup.py << 'EOF'
+cat > ~/beehive_digital_twin/test_gpu_setup.py << 'EOF'
 #!/usr/bin/env python3
 """
 Quick test to verify GPU setup is working correctly
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 EOF
 
 print_status "Creating requirements.txt file"
-cat > ~/beehive_dt/requirements.txt << 'EOF'
+cat > ~/beehive_digital_twin/requirements.txt << 'EOF'
 # Core ML and Scientific Computing
 torch>=2.1.0
 torchvision>=0.16.0
@@ -244,7 +244,7 @@ pillow>=10.0.0
 EOF
 
 print_status "Creating quick start script"
-cat > ~/beehive_dt/quick_start.sh << 'EOF'
+cat > ~/beehive_digital_twin/quick_start.sh << 'EOF'
 #!/bin/bash
 # Quick start script for running the beehive digital twin analysis
 
@@ -282,7 +282,7 @@ chmod +x ~/beehive_dt/quick_start.sh
 
 print_status "Final system check"
 source ~/beehive_env/bin/activate
-cd ~/beehive_dt
+cd ~/beehive_digital_twin
 
 echo "Running final GPU test..."
 python3 test_gpu_setup.py
@@ -294,17 +294,17 @@ echo "=================================================="
 echo ""
 echo "Next steps:"
 echo "1. Run: source ~/activate_beehive.sh"
-echo "2. Or run: ~/beehive_dt/quick_start.sh"
-echo "3. Upload your project files to ~/beehive_dt/"
+echo "2. Or run: ~/beehive_digital_twin/quick_start.sh"
+echo "3. Upload your project files to ~/beehive_digital_twin/"
 echo "4. Run your GPU scaling and biological intelligence analysis!"
 echo ""
 echo "Useful commands:"
 echo "  beehive                    # Activate environment (after adding to PATH)"
 echo "  source ~/activate_beehive.sh  # Activate environment"
 echo "  nvidia-smi                 # Check GPU status"
-echo "  cd ~/beehive_dt && python3 test_gpu_setup.py  # Test installation"
+echo "  cd ~/beehive_digital_twin && python3 test_gpu_setup.py  # Test installation"
 echo ""
-echo "Project directory: ~/beehive_dt/"
+echo "Project directory: ~/beehive_digital_twin/"
 echo "Environment: ~/beehive_env/"
 echo ""
 echo "Happy researching! 🐝🤖"

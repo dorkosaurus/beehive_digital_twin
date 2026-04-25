@@ -1,4 +1,4 @@
-# GPU Distributed Training Scaling Study - Heavily Commented
+# GPU Distributed Training Scaling Study - With Organized Results
 # Fellowship Project: Understanding Compute Infrastructure for Autonomous Biological Learning
 # Author: Vivek
 # Hardware: RTX 4090 on vast.ai
@@ -22,6 +22,22 @@ import matplotlib.pyplot as plt  # For creating graphs and visualizations
 import pandas as pd          # For data manipulation
 import numpy as np           # For numerical calculations
 from datetime import datetime
+
+# ==============================================================================
+# OUTPUT ORGANIZATION - Create organized directory structure
+# ==============================================================================
+
+def ensure_output_dirs():
+    """Create the organized directory structure for results"""
+    dirs = [
+        'results/validation',
+        'results/validation/logs', 
+        'results/validation/visualizations',
+        'results/validation/data'
+    ]
+    for dir_path in dirs:
+        os.makedirs(dir_path, exist_ok=True)
+    print("✓ Created organized results directory structure")
 
 # ==============================================================================
 # ENVIRONMENT CHECK - What hardware do we have to work with?
@@ -215,11 +231,14 @@ def get_cifar100_loaders(batch_size=512, num_workers=8):
         transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
     ])
     
-    # Download and prepare the dataset
+    # Download and prepare the dataset - save to organized location
+    data_dir = 'results/validation/data'
+    os.makedirs(data_dir, exist_ok=True)
+    
     trainset = torchvision.datasets.CIFAR100(
-        root='./data',           # Where to store the data
-        train=True,             # Use training set (not test set)
-        download=True,          # Download if not already present
+        root=data_dir,              # Where to store the data
+        train=True,                 # Use training set (not test set)
+        download=True,              # Download if not already present
         transform=transform_train
     )
     
@@ -461,69 +480,48 @@ def simulate_distributed_scaling(single_gpu_metrics):
     return simulation_results
 
 # ==============================================================================
-# VISUALIZATION - Creating graphs to show the scaling analysis
+# RESULTS SAVING - Save to organized directory structure
 # ==============================================================================
 
-def plot_scaling_results(single_gpu_metrics, simulation_results):
+def save_results_organized(single_gpu_metrics, simulation_results):
     """
-    Create comprehensive visualizations of GPU scaling analysis.
-    
-    These graphs tell the story of where distributed training breaks down
-    and help with infrastructure planning decisions.
+    Save all results to the organized results/validation/ directory structure
     """
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+    ensure_output_dirs()
     
-    # GRAPH 1: Throughput scaling (most important graph)
-    gpu_counts = [1] + [r['gpu_count'] for r in simulation_results]
-    throughputs = [single_gpu_metrics['final_throughput']] + [r['realistic_throughput'] for r in simulation_results]
-    ideal_throughputs = [single_gpu_metrics['final_throughput']] + [r['ideal_throughput'] for r in simulation_results]
+    # Create comprehensive results object
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    gpu_count = torch.cuda.device_count() if torch.cuda.is_available() else 0
     
-    ax1.plot(gpu_counts, throughputs, 'o-', label='Realistic (with communication overhead)', 
-             linewidth=2, markersize=8, color='blue')
-    ax1.plot(gpu_counts, ideal_throughputs, '--', label='Ideal (perfect linear scaling)', 
-             alpha=0.7, color='green')
-    ax1.set_xlabel('Number of GPUs')
-    ax1.set_ylabel('Throughput (samples/sec)')
-    ax1.set_title('GPU Scaling: Throughput vs GPU Count')
-    ax1.legend()
-    ax1.grid(True, alpha=0.3)
+    combined_results = {
+        'timestamp': timestamp,
+        'single_gpu_metrics': single_gpu_metrics,
+        'scaling_simulation': simulation_results,
+        'hardware_info': {
+            'gpu_count': gpu_count,
+            'pytorch_version': torch.__version__,
+            'cuda_version': torch.version.cuda if torch.cuda.is_available() else None
+        }
+    }
     
-    # GRAPH 2: Scaling efficiency (shows where the bottleneck is)
-    efficiencies = [1.0] + [r['scaling_efficiency'] for r in simulation_results]
-    ax2.plot(gpu_counts, efficiencies, 'ro-', linewidth=2, markersize=8)
-    ax2.axhline(y=1.0, color='gray', linestyle='--', alpha=0.7, label='Perfect efficiency')
-    ax2.set_xlabel('Number of GPUs')
-    ax2.set_ylabel('Scaling Efficiency')
-    ax2.set_title('Scaling Efficiency vs GPU Count')
-    ax2.set_ylim([0, 1.1])
-    ax2.legend()
-    ax2.grid(True, alpha=0.3)
+    # Save to organized location
+    results_file = f"results/validation/gpu_scaling_study_{timestamp}.json"
     
-    # GRAPH 3: Single GPU performance over time
-    if single_gpu_metrics['timestamps'] and single_gpu_metrics['samples_per_sec']:
-        ax3.plot(single_gpu_metrics['timestamps'], single_gpu_metrics['samples_per_sec'], 
-                color='purple', linewidth=2)
-        ax3.set_xlabel('Time (seconds)')
-        ax3.set_ylabel('Instantaneous Throughput (samples/sec)')
-        ax3.set_title('Single GPU: Throughput Over Time')
-        ax3.grid(True, alpha=0.3)
+    # Save to JSON file (handle numpy types that don't serialize)
+    with open(results_file, 'w') as f:
+        def convert_numpy(obj):
+            """Helper function to convert numpy types to regular Python types"""
+            if hasattr(obj, 'tolist'):
+                return obj.tolist()
+            elif hasattr(obj, 'item'):
+                return obj.item()
+            return obj
+        
+        clean_results = json.loads(json.dumps(combined_results, default=convert_numpy))
+        json.dump(clean_results, f, indent=2)
     
-    # GRAPH 4: Memory usage over time
-    if single_gpu_metrics['timestamps'] and single_gpu_metrics['gpu_memory_used']:
-        ax4.plot(single_gpu_metrics['timestamps'], single_gpu_metrics['gpu_memory_used'], 
-                label='Allocated Memory', linewidth=2, color='red')
-        ax4.plot(single_gpu_metrics['timestamps'], single_gpu_metrics['gpu_memory_cached'], 
-                label='Cached Memory', alpha=0.7, color='orange')
-        ax4.set_xlabel('Time (seconds)')
-        ax4.set_ylabel('GPU Memory (GB)')
-        ax4.set_title('Single GPU: Memory Usage Over Time')
-        ax4.legend()
-        ax4.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.show()
-    
-    return fig
+    print(f"\nResults saved to: {results_file}")
+    return results_file
 
 # ==============================================================================
 # MAIN EXECUTION - Putting it all together
@@ -537,11 +535,13 @@ def run_scaling_study():
     1. Checks our hardware
     2. Runs the performance benchmark
     3. Simulates multi-GPU scaling
-    4. Creates visualizations
-    5. Saves results for analysis
+    4. Saves results to organized directory structure
     """
     print("Starting GPU Distributed Training Scaling Study")
     print("=" * 60)
+    
+    # Ensure output directories exist
+    ensure_output_dirs()
     
     # PHASE 1: Check what hardware we have
     gpu_count = check_environment()
@@ -554,41 +554,9 @@ def run_scaling_study():
     print("\nPhase 2: Multi-GPU Scaling Analysis...")
     scaling_results = simulate_distributed_scaling(single_gpu_results)
     
-    # PHASE 4: Create visualizations to understand the results
-    print("\nPhase 3: Results Visualization...")
-    fig = plot_scaling_results(single_gpu_results, scaling_results)
-    
-    # PHASE 5: Save everything for later analysis
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_file = f"gpu_scaling_study_{timestamp}.json"
-    
-    # Combine all results into one data structure
-    combined_results = {
-        'timestamp': timestamp,
-        'single_gpu_metrics': single_gpu_results,
-        'scaling_simulation': scaling_results,
-        'hardware_info': {
-            'gpu_count': gpu_count,
-            'pytorch_version': torch.__version__,
-            'cuda_version': torch.version.cuda if torch.cuda.is_available() else None
-        }
-    }
-    
-    # Save to JSON file (handle numpy types that don't serialize)
-    with open(results_file, 'w') as f:
-        def convert_numpy(obj):
-            """Helper function to convert numpy types to regular Python types"""
-            if hasattr(obj, 'tolist'):
-                return obj.tolist()
-            elif hasattr(obj, 'item'):
-                return obj.item()
-            return obj
-        
-        import json
-        clean_results = json.loads(json.dumps(combined_results, default=convert_numpy))
-        json.dump(clean_results, f, indent=2)
-    
-    print(f"\nResults saved to: {results_file}")
+    # PHASE 4: Save everything to organized directory structure
+    print("\nPhase 3: Saving Results...")
+    results_file = save_results_organized(single_gpu_results, scaling_results)
     
     # FINAL SUMMARY for fellowship demo
     print(f"\n{'='*60}")
@@ -605,8 +573,9 @@ def run_scaling_study():
     print(f"\nKey Insight: Communication overhead limits scaling efficiency")
     print(f"At 8 GPUs: {scaling_results[-1]['scaling_efficiency']:.1%} efficiency vs ideal linear scaling")
     print(f"This constraint affects any distributed biological learning system.")
+    print(f"\nResults saved to: {results_file}")
     
-    return combined_results
+    return results_file
 
 # ==============================================================================
 # RUN THE STUDY
@@ -614,7 +583,7 @@ def run_scaling_study():
 
 if __name__ == "__main__":
     # Execute the complete scaling study
-    results = run_scaling_study()
+    results_file = run_scaling_study()
     
     print("\n" + "="*60)
     print("GPU SCALING STUDY COMPLETE")
@@ -622,3 +591,5 @@ if __name__ == "__main__":
     print("This analysis provides the infrastructure foundation for")
     print("building distributed biological learning systems.")
     print("Next step: Apply this to real biological data modeling!")
+    print(f"\nResults location: {results_file}")
+    print("Visualization script: python3 src/validation/validation_viz.py")
