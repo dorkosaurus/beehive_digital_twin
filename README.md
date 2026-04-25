@@ -15,16 +15,21 @@ As a new beekeeper, I became fascinated by the complexity of bee colony behavior
 ## 📁 Repository Structure
 
 ```
-beehive_dt/
-├── linkedin_posts/           # Social media content and fellowship documentation
-│   └── Apr23.md             # Build-in-public LinkedIn post
-├── loom_scripts/            # Video presentation materials
-│   └── Apr23.md             # Fellowship demo script (2-3 minutes)
-└── src/                     # Core technical implementation
-    └── validation/          # Research validation and analysis
-        ├── gpu_scaling_testing.py     # GPU infrastructure analysis
-        ├── v0_digital_twin.py         # Biological modeling and complexity discovery
-        └── validation_viz.py          # Visualization generation for demos
+beehive_digital_twin/
+├── README.md                    # This documentation
+├── setup_gpu_machine.sh         # Automated GPU instance setup
+├── linkedin_posts/              # Social media content and fellowship documentation
+│   └── Apr23.md                # Build-in-public LinkedIn post
+├── loom_scripts/               # Video presentation materials
+│   └── Apr23.md                # Fellowship demo script (2-3 minutes)
+├── src/                        # Core technical implementation
+│   └── validation/             # Research validation and analysis
+│       ├── gpu_scaling_testing.py     # GPU infrastructure analysis
+│       ├── v0_digital_twin.py         # Biological modeling and complexity discovery
+│       └── validation_viz.py          # Visualization generation for demos
+└── terraform/                  # Infrastructure as Code
+    ├── vastai.tf               # vast.ai GPU instance provisioning
+    └── terraform.tfvars.example # Configuration template
 ```
 
 ## 🏗️ Technical Architecture
@@ -110,11 +115,100 @@ python3 src/validation/validation_viz.py --help
 - Python 3.8+
 - PyTorch 2.0+ (for GPU analysis)
 - Standard scientific libraries: numpy, pandas, matplotlib, scikit-learn
+- **For GPU instances**: NVIDIA GPU with CUDA support
+- **For Terraform deployment**: vast.ai API key and SSH key pair
 
-### Installation
+### Option 1: Manual Setup on Existing GPU Instance
+
 ```bash
-git clone https://github.com/your-username/beehive_dt.git
-cd beehive_dt
+git clone https://github.com/your-username/beehive_digital_twin.git
+cd beehive_digital_twin
+bash setup_gpu_machine.sh
+```
+
+The setup script will:
+- Install all Python dependencies and PyTorch with CUDA support
+- Configure environment with useful aliases and shortcuts
+- Test GPU functionality and create project structure
+- Set up command-line tools for analysis
+
+### Option 2: Automated Infrastructure with Terraform
+
+**Prerequisites**:
+- [Terraform](https://terraform.io) installed
+- vast.ai account and API key
+- SSH key pair for instance access
+
+**Setup**:
+```bash
+git clone https://github.com/your-username/beehive_digital_twin.git
+cd beehive_digital_twin/terraform
+
+# Copy and configure your settings
+cp terraform.tfvars.example terraform.tfvars
+```
+
+**Required Configuration** (`terraform.tfvars`):
+```hcl
+# Your vast.ai API key (get from https://vast.ai/console/account/)
+vastai_api_key = "your_vastai_api_key_here"
+
+# Path to your SSH public key (will be installed on the instance)
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+# Path to your SSH private key (for connecting to the instance)
+ssh_private_key_path = "~/.ssh/id_rsa"
+
+# Optional: customize instance specs
+instance_type = "RTX4090"    # GPU type preference
+max_price = "0.50"           # Maximum $/hour you want to pay
+```
+
+**Deploy GPU Infrastructure**:
+```bash
+# Initialize Terraform
+terraform init
+
+# Review the deployment plan
+terraform plan
+
+# Deploy the GPU instance
+terraform apply
+
+# Get connection details
+terraform output instance_info
+```
+
+**Connect and Setup**:
+```bash
+# SSH into your instance (IP from terraform output)
+ssh root@<instance_ip>
+
+# Clone and setup (on the remote instance)
+git clone https://github.com/your-username/beehive_digital_twin.git
+cd beehive_digital_twin
+bash setup_gpu_machine.sh
+```
+
+**Cleanup When Done**:
+```bash
+# From your local terraform directory
+terraform destroy
+```
+
+⚠️ **Security Notes**:
+- Never commit your `terraform.tfvars` file with real API keys to version control
+- Keep your SSH private keys secure and never share them
+- The setup script will create a virtual environment to isolate dependencies
+- Always destroy Terraform resources when done to avoid unexpected charges
+
+### Manual Installation (Alternative)
+
+If you prefer manual setup:
+
+```bash
+git clone https://github.com/your-username/beehive_digital_twin.git
+cd beehive_digital_twin
 
 # Install dependencies
 pip install torch torchvision matplotlib pandas numpy scikit-learn requests
@@ -207,6 +301,33 @@ This project demonstrates infrastructure requirements for autonomous biological 
 ## 📄 License
 
 Open source for research and educational purposes. Please cite this work if used in academic or commercial biological intelligence applications.
+
+## 📁 Configuration Files
+
+### Terraform Variables Example (`terraform/terraform.tfvars.example`)
+```hcl
+# vast.ai API Configuration
+vastai_api_key = "your_vastai_api_key_here"
+
+# SSH Key Configuration  
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+ssh_private_key_path = "~/.ssh/id_rsa"
+
+# Instance Preferences (optional)
+instance_type = "RTX4090"
+max_price = "0.50"
+region = "US"
+```
+
+Copy this to `terraform/terraform.tfvars` and fill in your actual values.
+
+### Environment Setup
+The `setup_gpu_machine.sh` script automatically:
+- Creates Python virtual environment at `~/beehive_env`
+- Installs all required dependencies with CUDA support
+- Sets up useful aliases: `gpu`, `gpuwatch`, `beehive`
+- Creates project structure and test scripts
+- Configures GPU monitoring tools
 
 ## 📚 References
 
