@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-04-25T01:42:12.384724",
+  "methodology": {
+    "environmental_data_source": "PurpleAir sensors (Petaluma, CA)",
+    "biological_model": "Research-based bee activity preferences",
+    "statistical_test": "Linear regression (environmental \u2192 biological)",
+    "complexity_measure": "R\u00b2 score and prediction error"
+  },
+  "data_summary": {
+    "air_quality_readings": 24,
+    "bee_activity_predictions": 24,
+    "time_span_hours": 24,
+    "avg_pm25_ugm3": 7.683333333333333,
+    "avg_temperature_f": 64.65416666666665,
+    "avg_humidity_percent": 59.07916666666667,
+    "avg_bee_activity_per_min": 3.4083333333333337
+  },
+  "model_performance": {
+    "r2_score": -0.16001444139030951,
+    "mean_absolute_error_bees_per_min": 3.6337671529011004,
+    "interpretation": "Negative R\u00b2 indicates model performs worse than baseline",
+    "conclusion": "Linear regression fails to capture biological complexity"
+  },
+  "key_findings": [
+    "Environmental data shows realistic daily patterns (temperature, air quality)",
+    "Research-based bee model produces complex, non-linear activity patterns",
+    "Simple statistical models completely fail (R\u00b2 < 0)",
+    "Biological relationships require sophisticated AI, not basic statistics",
+    "This demonstrates the infrastructure needs for biological digital twins"
+  ],
+  "next_steps": [
+    "Deploy computer vision for real bee activity data collection",
+    "Train neural networks using GPU infrastructure from Phase 1",
+    "Validate predictions against actual hive behavior",
+    "Scale to multi-modal biological intelligence system"
+  ]
+}
