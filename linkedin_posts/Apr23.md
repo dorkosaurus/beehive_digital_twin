@@ -26,6 +26,7 @@ Building both. 🚀
 ---
 
 GitHub: https://github.com/dorkosaurus/beehive_digital_twin
+
 Demo video: [link to loom]
 
 What biological system would you want to build a digital twin of?
